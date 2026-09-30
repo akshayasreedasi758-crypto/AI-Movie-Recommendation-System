@@ -1,7 +1,12 @@
 import requests
 import streamlit as st
+import os
 
-API = "http://127.0.0.1:8000"
+API_BASE = os.getenv(
+    "API_BASE_URL",
+    "http://127.0.0.1:8000"
+)
+
 
 st.set_page_config(page_title="AI Movie Recommender", page_icon="🎬", layout="wide")
 
@@ -14,7 +19,7 @@ def headers():
     return {"Authorization": f"Bearer {st.session_state.token}"} if st.session_state.token else {}
 
 def api(method, path, **kwargs):
-    return requests.request(method, API + path, headers=headers(), timeout=20, **kwargs)
+    return requests.request(method, API_BASE + path, headers=headers(), timeout=20, **kwargs)
 
 st.title("🎬 AI Movie Recommendation System")
 st.caption("Personalized recommendations using machine learning")
@@ -28,7 +33,7 @@ with st.sidebar:
             email = st.text_input("Email", key="login_email")
             password = st.text_input("Password", type="password", key="login_password")
             if st.button("Login", use_container_width=True):
-                r = requests.post(API + "/auth/login", json={"email": email, "password": password}, timeout=20)
+                r = requests.post(API_BASE + "/auth/login", json={"email": email, "password": password}, timeout=20)
                 if r.ok:
                     data = r.json()
                     st.session_state.token = data["access_token"]
@@ -42,7 +47,7 @@ with st.sidebar:
             email2 = st.text_input("Email", key="reg_email")
             password2 = st.text_input("Password", type="password", key="reg_password")
             if st.button("Create account", use_container_width=True):
-                r = requests.post(API + "/auth/register", json={"name": name, "email": email2, "password": password2}, timeout=20)
+                r = requests.post(API_BASE + "/auth/register", json={"name": name, "email": email2, "password": password2}, timeout=20)
                 if r.ok:
                     st.success("Account created. Login now.")
                 else:
